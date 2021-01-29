@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+    .line {
+        width: 100%;
+    }
+    .block {
+        width: 33.3%;
+        min-height: 180px;
+        float: left;
+        padding: 1%;
+    }
+    a.state-1,a.state-0 {
+        width: 100%;
+        min-height: 100px;
+        display: block;
+        text-align: center;
+        font-size: 2em;
+        padding-top: 20px;
+    }
+    a.state-1 {
+        background: #ff382f;
+    }
+    a.state-0 {
+        background: #3cff16;
+    }
+    .block p#name {
+        text-align: center;
+        font-size: 2em;
+    }
+</style>
+<script>
+    function execute(block) {
+        let xhr = new XMLHttpRequest();
+        xhr.responseType = 'json';
+        let id = block.getAttribute("data-id")
+        let state = block.getAttribute("data-state")
+        let url = new URL('http://home.local/execute');
+        url.searchParams.set('id', id);
+        url.searchParams.set('state', state);
+        xhr.open('GET', url);
+        xhr.send();
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                let responseObj = xhr.response;
+                console.log(responseObj)
+                if (responseObj != null) {
+                    block.setAttribute("data-state", responseObj.State)
+                    block.classList.remove("state-" + state)
+                    block.classList.add("state-" + responseObj.State)
+                    if (responseObj.State === 0) {
+                        block.text = "Включить"
+                    } else {
+                        block.text = "Выключить"
+                    }
+                }
+            }
+        };
+    }
+
+</script>
+<body>
+<div class="line">
+    {{ range .Controllers }}
+    <div class="block">
+        <p id="name">{{ .Name }}</p>
+        <a class="state-{{ .State }}" onclick="execute(this)" data-state="{{ .State }}" data-id="{{ .ID }}" >{{ if eq .State 0 }} Включить {{ else }} Выключить {{ end }}</a>
+    </div>
+    {{ end }}
+</div>
+</body>
+</html>
