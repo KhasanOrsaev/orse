@@ -1,3 +1,4 @@
 .idea
 .env
 var/migration/version.txt
+home.db
